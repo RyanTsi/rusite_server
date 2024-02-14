@@ -2,6 +2,7 @@ pub mod utils;
 pub mod data_struct;
 pub mod router;
 pub mod fallback;
+pub mod error;
 
 
 #[cfg(test)]
