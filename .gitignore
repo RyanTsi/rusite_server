@@ -1,0 +1,9 @@
+/target/
+
+_*
+
+*.bk
+
+run.sh
+
+/public/
