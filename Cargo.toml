@@ -1,3 +1,8 @@
+[workspace]
+members = [
+    "push_server",
+]
+
 [package]
 name = "rusite_server"
 version = "0.1.0"
@@ -11,7 +16,13 @@ serde_json = "1.0.113"
 serde_yaml = "0.9.31"
 pulldown-cmark = "0.10.0"
 tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread"] }
-tower-http = {version = "0.5.1", features = ["fs"] }
+tower-http = { version = "0.5.1", features = ["fs", "cors"] }
 toml = "0.8.8"
 notify = "6.1.1"
 chrono = { version = "0.4.33", features = ["alloc"] }
+tower-cookies = "0.10.0"
+sqlx = "0.7.3"
+
+[dev-dependencies]
+anyhow = "1.0.79"
+httpc-test = "0.1.9"
