@@ -15,13 +15,22 @@ pub use rusite_server::error::{Error, Result};
 
 use tower_http::cors::{CorsLayer, any};
 
+use push_server::{
+    dbops::{tables_ops::query_essay_info, utils::build_pool}, DATABASE_URL
+};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     
+    dotenv::dotenv().ok();
+
+    let pool = build_pool().await.unwrap();
+
+    // let x = query_essay_info(&pool).await.unwrap();
+
+    
     // 初始化模型控制器
     let mc = ModelController::new().await?;
-
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))

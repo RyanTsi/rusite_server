@@ -11,18 +11,17 @@ edition = "2021"
 [dependencies]
 axum = "0.7.4"
 lazy_static = "1.4.0"
-serde = { version = "1.0.196", features = ["derive"] }
-serde_json = "1.0.113"
-serde_yaml = "0.9.31"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 pulldown-cmark = "0.10.0"
 tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread"] }
 tower-http = { version = "0.5.1", features = ["fs", "cors"] }
-toml = "0.8.8"
-notify = "6.1.1"
-chrono = { version = "0.4.33", features = ["alloc"] }
 tower-cookies = "0.10.0"
-sqlx = "0.7.3"
+sqlx = { version = "0.7", features = [ "runtime-tokio", "mysql" ] }
+dotenv = "0.15.0"
+
+push_server ={ path = "./push_server"}
 
 [dev-dependencies]
-anyhow = "1.0.79"
+anyhow = "1.0"
 httpc-test = "0.1.9"

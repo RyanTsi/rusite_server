@@ -3,7 +3,7 @@ use std::fs;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::{build_pool, dbops, initialize, Essay};
+
 
 #[derive(Deserialize, Debug)]
 struct point {
@@ -16,9 +16,9 @@ async fn solve() -> Result<()>{
     // let pool = build_pool().await.unwrap();
     // let x = dbops::query_essays_last_save_time(&pool).await?;
     // println!("{:?}", x);
-    for i in 0..10 {
-        let uuid = Uuid::new_v4().to_string();
-        println!("{}", uuid);
-    }
+    // for i in 0..10 {
+    //     let uuid = Uuid::new_v4().to_string();
+    //     println!("{}", uuid);
+    // }
     Ok(())
 }

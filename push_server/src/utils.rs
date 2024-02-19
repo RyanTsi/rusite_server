@@ -1,8 +1,8 @@
 use std::fs;
-use std::io::{BufRead, BufReader};
 use std::time::UNIX_EPOCH;
 
 use anyhow::Result;
+use uuid::Uuid;
 
 /// 递归得到 `dir` 文件夹下所有后缀为 `suffix` 的文件路径。
 pub fn get_entries(dir: &str, suffix: &str) -> Vec<String> {
@@ -28,4 +28,9 @@ pub fn get_modified_time(path: &str) -> Result<f64> {
     let metadata = fs::metadata(&path)?;
     let modified_time = metadata.modified()?.duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
     Ok(modified_time)
+}
+
+/// 得到一个 uuid
+pub fn get_uuid() -> String {
+    Uuid::new_v4().to_string()
 }
