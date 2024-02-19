@@ -23,8 +23,9 @@ pub fn get_entries(dir: &str, suffix: &str) -> Vec<String> {
     }
 }
 
-pub fn check_modified(path: &str, last_run_time: f64) -> Result<bool> {
+/// 得到该路径的文件的最后一次修改时间
+pub fn get_modified_time(path: &str) -> Result<f64> {
     let metadata = fs::metadata(&path)?;
     let modified_time = metadata.modified()?.duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
-    Ok(modified_time > last_run_time)
+    Ok(modified_time)
 }
