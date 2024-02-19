@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use push_server::{
-    data_struct::Essay, dbops::{tables_ops::{delete_essay, insert_essay, query_essays_last_save_time, update_essay}, utils::build_pool},
+    data_struct::Essay, dbops::{tables_ops::*, utils::*},
     CURRENT_TIME,
 };
 use tokio::fs;
@@ -34,13 +34,9 @@ impl Config {
     }
 }
 
-
-
 async fn initialize() {
     dotenv().ok();
 }
-
-
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -78,9 +74,6 @@ async fn main() -> Result<()> {
             println!("->> {:<12} - {}", "INSERT", essay.title);
         }
     }
-
-    // let uuid = Uuid::new_v4().to_string();
-    // println!("{}", uuid);
 
     Ok(())
 }

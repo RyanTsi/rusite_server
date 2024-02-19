@@ -9,7 +9,9 @@ pub async fn query_essays_last_save_time(
 ) -> Result<HashMap<String, f64>> {
     let mut res = HashMap::new();
     let rows = sqlx::query(
-        "SELECT eid, last_save_time FROM essays"
+        r#"
+SELECT eid, last_save_time FROM essays
+        "#
     )
     .fetch_all(pool)
     .await?;
@@ -80,7 +82,9 @@ pub async fn query_essay_info(
     pool: &Pool<MySql>,
 ) -> Result<Vec<EssayInfo>> {
     let rows = sqlx::query(
-        "SELECT eid, title, date, brief FROM essays"
+        r#"
+SELECT eid, title, date, brief FROM essays
+        "#
     )
     .fetch_all(pool)
     .await?;
@@ -168,14 +172,18 @@ async fn insert_eaasy_tag(
     tag: &str,
 ) -> Result<()> {
     let tag_id = sqlx::query_scalar!(
-        "SELECT id FROM tag_set WHERE tag_name = ?",
+        r#"
+SELECT id FROM tag_set WHERE tag_name = ?
+        "#,
         tag
     )
     .fetch_one(pool)
     .await?;
 
     sqlx::query!(
-        "INSERT INTO essay_tag (eid, tag_id) VALUES (?, ?)",
+        r#"
+INSERT INTO essay_tag (eid, tag_id) VALUES (?, ?)
+        "#,
         eid,
         tag_id
     )
@@ -191,14 +199,18 @@ async fn insert_eaasy_category(
     category: &str,
 ) -> Result<()> {
     let category_id: u32 = sqlx::query_scalar!(
-        "SELECT id FROM category_set WHERE category_name = ?",
+        r#"
+SELECT id FROM category_set WHERE category_name = ?
+        "#,
         category
     )
     .fetch_one(pool)
     .await?;
 
     sqlx::query!(
-        "INSERT INTO essay_category (eid, category_id) VALUES (?, ?)",
+        r#"
+INSERT INTO essay_category (eid, category_id) VALUES (?, ?)
+        "#,
         eid,
         category_id
     )
@@ -213,7 +225,9 @@ async fn insert_tag(
     tag: &str,
 ) -> Result<()> {
     sqlx::query!(
-        "INSERT INTO tag_set (tag_name) VALUES (?)",
+        r#"
+INSERT INTO tag_set (tag_name) VALUES (?)
+        "#,
         tag
     )
     .execute(pool)
@@ -228,7 +242,9 @@ async fn insert_category(
     category: &str,
 ) -> Result<()> {
     sqlx::query!(
-        "INSERT INTO category_set (category_name) VALUES (?)",
+        r#"
+INSERT INTO category_set (category_name) VALUES (?)
+        "#,
         category
     )
     .execute(pool)
@@ -241,7 +257,9 @@ async fn query_tag_set(
     pool: &Pool<MySql>,
 ) -> Result<HashSet<String>> {
     let rows = sqlx::query(
-        "SELECT tag_name FROM tag_set"
+        r#"
+SELECT tag_name FROM tag_set
+        "#
     )
     .fetch_all(pool)
     .await?;
@@ -256,7 +274,9 @@ async fn query_category_set(
     pool: &Pool<MySql>,
 ) -> Result<HashSet<String>> {
     let rows = sqlx::query(
-        "SELECT category_name FROM category_set"
+        r#"
+SELECT category_name FROM category_set
+        "#
     )
     .fetch_all(pool)
     .await?;
@@ -286,7 +306,9 @@ async fn delete_essay_tags(
     eid: &str,
 ) -> Result<()> {
     sqlx::query!(
-        "DELETE FROM essay_tag WHERE eid = ?",
+        r#"
+DELETE FROM essay_tag WHERE eid = ?
+        "#,
         eid
     )
     .execute(pool)
@@ -299,7 +321,9 @@ async fn delete_essay_categories(
     eid: &str,
 ) -> Result<()> {
     sqlx::query!(
-        "DELETE FROM essay_category WHERE eid = ?",
+        r#"
+DELETE FROM essay_category WHERE eid = ?
+        "#,
         eid
     )
     .execute(pool)
@@ -337,7 +361,9 @@ pub async fn delete_essay(
     delete_essay_categories(pool, eid).await?;
     delete_essay_tags(pool, eid).await?;
     sqlx::query!(
-        "DELETE FROM essays WHERE eid = ?",
+        r#"
+DELETE FROM essays WHERE eid = ?
+        "#,
         eid
     )
     .execute(pool)
