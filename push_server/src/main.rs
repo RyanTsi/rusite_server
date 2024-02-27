@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use anyhow::Result;
 use dotenv::dotenv;
 mod utils;
-use utils::get_modified_time;
+use utils::*;
 
 /// 读取 config.json 文件，并修改当前时间到 config::last_run
 #[derive(Clone, Deserialize, Serialize)]
@@ -77,5 +77,3 @@ async fn main() -> Result<()> {
 
     Ok(())
 }
-
-

@@ -1,4 +1,4 @@
-use std::{fs, str::from_utf8 };
+use std::{ fs, str::from_utf8 };
 
 use axum::{
     extract::Path,
@@ -9,14 +9,15 @@ use axum::{
     Json,
     Router
 };
-use rusite_server::{fallback::routers_static, model::ModelController, web};
+use rusite_server::{fallback::routers_static, model::ModelController };
 use tower_cookies::CookieManagerLayer;
 pub use rusite_server::error::{Error, Result};
 
 use tower_http::cors::{CorsLayer, any};
 
 use push_server::{
-    dbops::{tables_ops::query_essay_info, utils::build_pool}, DATABASE_URL
+    dbops::{tables_ops::query_essay_info, utils::build_pool},
+    DATABASE_URL
 };
 
 #[tokio::main]
@@ -35,8 +36,6 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .merge(blog_router())
-        .merge(web::routes_login::routes())
-        .nest("/api", web::routes_tickets::routes(mc.clone()))
         .layer(middleware::map_response(main_response_mapper))
         // .layer(CorsLayer::new()
         //             .allow_methods(vec![Method::GET, Method::POST])
@@ -55,7 +54,6 @@ async fn main() -> Result<()> {
 
 async fn main_response_mapper(res: Response) -> Response {
     println!("->> {:<12} - main_response_mapper\n", "RES_MAPPER");
-    
     res
 }
 
@@ -63,7 +61,7 @@ async fn main_response_mapper(res: Response) -> Response {
 fn blog_router() -> Router {
     Router::new()
         .route("/blog", get(handler_blog))
-        .route("/blog2/:blog_id", get(handler_blog2))
+        .route("/blog/:blog_id", get(handler_blog2))
 }
 
 async fn handler_blog() -> impl IntoResponse {
