@@ -10,7 +10,7 @@ use dotenv::dotenv;
 mod utils;
 use utils::*;
 
-/// 读取 config.json 文件，并修改当前时间到 config::last_run
+/// 读取 config.json 文件
 #[derive(Clone, Deserialize, Serialize)]
 struct Config {
     essays_source: String,

@@ -1,9 +1,9 @@
 use pulldown_cmark::{html, Options, Parser};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::{fs, io::{AsyncBufReadExt, BufReader}};
 use anyhow::Result;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EssayInfo {
     pub eid: String,
     pub title: String,

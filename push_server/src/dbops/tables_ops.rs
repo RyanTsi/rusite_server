@@ -4,6 +4,7 @@ use sqlx::{self, MySql, Pool, Row};
 use crate::data_struct::{Essay, EssayInfo};
 use anyhow::Result;
 
+/// 得到数据库中所有文章的最后保存时间
 pub async fn query_essays_last_save_time(
     pool: &Pool<MySql>,
 ) -> Result<HashMap<String, f64>> {
@@ -23,6 +24,7 @@ SELECT eid, last_save_time FROM essays
     Ok(res)
 }
 
+/// 根据文章的 eid 得到该文章的内容
 pub async fn query_essay_content(
     pool: &Pool<MySql>,
     eid: &str,
@@ -40,6 +42,7 @@ WHERE eid = ?
     .await?)
 }
 
+/// 根据文章的 eid 得到该文章的 tags
 pub async fn query_essay_tags(
     pool: &Pool<MySql>,
     eid: &str,
@@ -59,6 +62,7 @@ WHERE et.eid = ?
     
 }
 
+/// 根据文章的 eid 得到该文章的 categories
 pub async fn query_essay_categories(
     pool: &Pool<MySql>,
     eid: &str
@@ -78,6 +82,7 @@ WHERE ec.eid = ?
     Ok(res)
 }
 
+/// 得到所有文章的 info (eid, title, date, brief, tags, categories)
 pub async fn query_essay_info(
     pool: &Pool<MySql>,
 ) -> Result<Vec<EssayInfo>> {
@@ -102,7 +107,7 @@ SELECT eid, title, date, brief FROM essays
     }
     Ok(res)
 }
-
+/// 向数据库中添加一篇文章
 pub async fn insert_essay(
     pool: &Pool<MySql>,
     essay: &Essay,
