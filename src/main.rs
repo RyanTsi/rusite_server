@@ -13,7 +13,6 @@ use push_server::dbops::{
     utils::build_pool
 };
 
-
 #[derive(Clone)]
 struct AppState {
     db: Pool<MySql>,
@@ -36,7 +35,7 @@ async fn main() -> Result<()> {
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
-        .nest("/api", api_route(state))
+        .nest ("/api", api_route(state))
         .layer(middleware::map_response(main_response_mapper))
         .layer(CorsLayer::new()
                     .allow_methods(vec![Method::GET, Method::POST])

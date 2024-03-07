@@ -17,8 +17,9 @@ async fn solve() -> Result<()>{
     // let x = dbops::query_essays_last_save_time(&pool).await?;
     // println!("{:?}", x);
     // for i in 0..10 {
-    //     let uuid = Uuid::new_v4().to_string();
-    //     println!("{}", uuid);
+    let uuid = Uuid::new_v4().to_string();
+    println!("{}", uuid);
     // }
+
     Ok(())
 }

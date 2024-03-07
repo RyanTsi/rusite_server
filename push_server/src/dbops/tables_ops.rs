@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use chrono::NaiveDateTime;
 use sqlx::{self, MySql, Pool, Row};
 use crate::data_struct::{Essay, EssayInfo};
-use anyhow::Result;
+use anyhow::{Ok, Result};
 
 /// 得到数据库中所有文章的最后保存时间
 pub async fn query_essays_last_save_time(
@@ -59,7 +59,6 @@ WHERE et.eid = ?
     )
     .fetch_all(pool)
     .await?)
-    
 }
 
 /// 根据文章的 eid 得到该文章的 categories
@@ -107,6 +106,100 @@ SELECT eid, title, date, brief FROM essays
     }
     Ok(res)
 }
+
+/// 根据 eid 得到该文章的 essay_info
+pub async fn query_essay_info_from_eid(
+    pool: &Pool<MySql>,
+    eid: &str,
+) -> Result<Option<EssayInfo>> {
+    let row = sqlx::query!(
+        r#"
+SELECT title, date, brief FROM essays WHERE eid = ?
+        "#,
+        eid
+    )
+    .fetch_optional(pool)
+    .await?;
+
+    let info_data = match row {
+        Some(data) => data,
+        None => return Ok(None),
+    };
+
+    let title = info_data.title;
+    let date = info_data.date.unwrap().format("%Y-%m-%d %H:%M:%S").to_string();;
+    let brief = info_data.brief;
+    let tags = query_essay_tags(pool, eid).await?;
+    let categories = query_essay_categories(pool, eid).await?;
+    Ok(Some(EssayInfo::new(
+        eid.to_string(), title, date, categories, tags, brief
+    )))
+}
+
+async fn query_eids_from_tag(
+    pool: &Pool<MySql>,
+    tag: &str,
+) -> Result<Vec<String>> {
+    let tag_id = get_tag_id_from_name(pool, tag).await?;
+    let eids = sqlx::query!(
+        r#"
+SELECT eid FROM essay_tag WHERE tag_id = ?
+        "#,
+        tag_id
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let essay_ids: Vec<String> = eids.iter().map(|row| row.eid.to_string()).collect();
+    Ok(essay_ids)
+}
+
+async fn query_eids_from_category(
+    pool: &Pool<MySql>,
+    category: &str,
+) -> Result<Vec<String>> {
+    let category_id = get_category_id_from_name(pool, category).await?;
+    let eids = sqlx::query!(
+        r#"
+SELECT eid FROM essay_category WHERE category_id = ?
+        "#,
+        category_id
+    )
+    .fetch_all(pool)
+    .await?;
+    let essay_ids: Vec<String> = eids.iter().map(|row| row.eid.to_string()).collect();
+    Ok(essay_ids)
+}
+
+/// 根据 tag 得到拥有这个 tag 的 essay_info
+pub async fn query_essays_info_from_tag(
+    pool: &Pool<MySql>,
+    tag: &str,
+) -> Result<Vec<EssayInfo>> {
+    let eids = query_eids_from_tag(pool, tag).await?;
+    let mut essay_infos = Vec::new();
+    for eid in eids {
+        match query_essay_info_from_eid(pool, &eid).await? {
+            Some(x) => {
+                essay_infos.push(x)
+            }
+            None => ()
+        }
+    }
+    Ok(essay_infos)
+}
+
+/// 根据 category 得到 拥有这个category 的 essay_info
+pub async fn query_essays_from_category(
+    pool: &Pool<MySql>,
+    category: &str,
+) -> Result<Vec<EssayInfo>> {
+    let eids = query_eids_from_category(pool, category).await?;
+
+    todo!()
+}
+
+
 /// 向数据库中添加一篇文章
 pub async fn insert_essay(
     pool: &Pool<MySql>,
@@ -198,19 +291,46 @@ INSERT INTO essay_tag (eid, tag_id) VALUES (?, ?)
     Ok(())
 }
 
+/// 根据 category_name 得到 category_id
+async fn get_category_id_from_name(
+    pool: &Pool<MySql>,
+    category_name: &str,
+) -> Result<u32> {
+    Ok(
+        sqlx::query_scalar!(
+            r#"
+SELECT id FROM category_set WHERE category_name = ?
+            "#,
+            category_name
+        )
+        .fetch_one(pool)
+        .await?
+    )
+}
+
+/// 根据 tag_name 得到 tag_id
+async fn get_tag_id_from_name(
+    pool: &Pool<MySql>,
+    tag_name: &str,
+) -> Result<u32> {
+    Ok(
+        sqlx::query_scalar!(
+            r#"
+SELECT id FROM tag_set WHERE tag_name = ?
+            "#,
+            tag_name
+        )
+        .fetch_one(pool)
+        .await?
+    )
+}
+
 async fn insert_eaasy_category(
     pool: &Pool<MySql>,
     eid: &str,
     category: &str,
 ) -> Result<()> {
-    let category_id: u32 = sqlx::query_scalar!(
-        r#"
-SELECT id FROM category_set WHERE category_name = ?
-        "#,
-        category
-    )
-    .fetch_one(pool)
-    .await?;
+    let category_id: u32 = get_category_id_from_name(pool, category).await?;
 
     sqlx::query!(
         r#"
