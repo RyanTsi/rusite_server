@@ -50,6 +50,7 @@ async fn main() -> Result<()> {
     let db_essay_last_save_time = query_essays_last_save_time(&pool).await?;
     let mut file_essay_last_save_time = HashMap::new();
     let essays_path = utils::get_entries(&essays_source, "md");
+    
     let mut essays = Vec::new();
     for essay_path in essays_path {
         essays.push(Essay::crate_from_path(&essay_path).await.expect(&(essay_path.clone() + " yaml is error")));

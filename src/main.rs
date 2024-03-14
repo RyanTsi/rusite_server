@@ -1,7 +1,9 @@
 use axum::{
-    extract::{Path, State}, http::Method, middleware, response::{IntoResponse, Response}, routing::get, Json, Router
+    extract::{Path, Query, State}, http::Method, middleware, response::{IntoResponse, Response}, routing::get, Json, Router
 };
+use pulldown_cmark::Tag;
 use rusite_server::fallback::routers_static;
+use serde::Deserialize;
 use sqlx::{MySql, Pool};
 use tower_cookies::CookieManagerLayer;
 pub use rusite_server::error::{Error, Result};
@@ -9,7 +11,7 @@ pub use rusite_server::error::{Error, Result};
 use tower_http::cors::{CorsLayer, any};
 
 use push_server::dbops::{
-    tables_ops::{ query_essay_content, query_essay_info },
+    tables_ops::{ query_essay_content, query_essay_info, query_essays_info_from_tag },
     utils::build_pool
 };
 
@@ -63,6 +65,8 @@ fn api_route(state: AppState) -> Router {
 fn blog_route(state: AppState) -> Router {
     Router::new()
         .route("/", get(handler_blog_info_list))
+        .route("/querytag", get(handler_blog_tag_query))
+        .route("/querycategory", get(handler_blog_category_query))
         .route("/:eid", get(handler_blog_content))
         .with_state(state)
 }
@@ -84,4 +88,36 @@ async fn handler_blog_content(
     let pool = &state.db;
     let res = query_essay_content(pool, &eid).await.unwrap();
     res.unwrap_or(Default::default())
+}
+
+#[derive(Debug, Deserialize)]
+struct TagParams {
+    tag: Option<String>
+}
+
+#[derive(Debug, Deserialize)]
+struct CategoryParams {
+    category: Option<String>
+}
+
+async fn handler_blog_tag_query(
+    Query(params): Query<TagParams>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    println!("->> {:<12} - handler_blog_tag_query", "HANDLER");
+    let pool = &state.db;
+    let tag = params.tag.as_deref().unwrap_or_default();
+    let res = query_essays_info_from_tag(pool, tag).await.unwrap();
+    Json(res)
+}
+
+async fn handler_blog_category_query(
+    Query(params): Query<CategoryParams>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    println!("->> {:<12} - handler_blog_category_query", "HANDLER");
+    let pool = &state.db;
+    let category = params.category.as_deref().unwrap_or_default();
+    let res = query_essays_info_from_tag(pool, category).await.unwrap();
+    Json(res)
 }

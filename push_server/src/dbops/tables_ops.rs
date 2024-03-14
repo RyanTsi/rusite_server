@@ -195,8 +195,16 @@ pub async fn query_essays_from_category(
     category: &str,
 ) -> Result<Vec<EssayInfo>> {
     let eids = query_eids_from_category(pool, category).await?;
-
-    todo!()
+    let mut essay_infos = Vec::new();
+    for eid in eids {
+        match query_essay_info_from_eid(pool, &eid).await? {
+            Some(x) => {
+                essay_infos.push(x)
+            }
+            None => ()
+        }
+    }
+    Ok(essay_infos)
 }
 
 
@@ -422,7 +430,6 @@ pub async fn update_essay(
     update_essay_info(pool, essay, current_time).await?;
     insert_essay_categories(pool, essay).await?;
     insert_essay_tags(pool, essay).await?;
-
     Ok(())
 }
 
